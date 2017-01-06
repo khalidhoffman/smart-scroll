@@ -1,11 +1,13 @@
-if (!require){
-    require = function(dep){
+if (!window.require){
+    window.require = function(dep){
         switch(dep){
             case 'jquery':
                 return window.jQuery || window.$ || null;
         }
-    },
-    module = {
+    };
+}
+if (!window.module){
+    window.module = {
         stub: true,
         cache: {},
         size : 0,
