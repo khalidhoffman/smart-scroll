@@ -1,11 +1,8 @@
 {
   "name": "smart-scroll",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "detects bot vs user scroll events",
   "main": "index.js",
-  "bin": {
-    "smart-scroll": "build.js"
-  },
   "directories": {
     "test": "tests"
   },
@@ -29,7 +26,7 @@
     "url": "https://github.com/khalidhoffman/smart-scroll/issues"
   },
   "homepage": "https://github.com/khalidhoffman/smart-scroll#readme",
-  "devDependencies": {
+  "dependencies": {
     "jquery": "^3.1.1"
   }
 }
