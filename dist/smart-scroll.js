@@ -67,7 +67,7 @@ var $ = require('jquery');
 function BotScrollVerifier() {
     this.config = {
         verificationTimeLimit: 200,
-        flingScrollDelay: 1000,
+        flingScrollDelay: 3000,
         tag: 'bot'
     };
     this.$dom = $(window);
@@ -84,20 +84,18 @@ function BotScrollVerifier() {
 BotScrollVerifier.prototype = {
     init: function () {
         var self = this,
-            userEvents = [
+            userEventList = [
                 'wheel',
                 'touchmove',
                 'drag'
             ],
-            events = userEvents.join(' ');
+            userEvents = userEventList.join(' ');
 
-        this.$dom.on(events, self.updateTimeStamp);
+        this.$dom.on(userEvents, self.updateTimeStamp);
+
+        // automatically invalidate all input if mouse is down
         this.$dom.on('mousedown touchstart', function () {
-            // automatically ignore all input if mouse is down
             self.state.isOverriding = true;
-            $('body').css({
-                fontSize: '10px'
-            });
         });
         this.$dom.on('mouseup', function () {
             // lift override if mouse is lifted
@@ -127,10 +125,10 @@ var BotScrollVerifier = require('./verifiers/bot'),
     UserScrollVerifier = require('./verifiers/user'),
     $ = require('jquery');
 
-function ScrollListener($el, verfiers) {
+function ScrollListener($el, verifiers) {
     this.$el = $el;
     this.onScroll = this.onScroll.bind(this);
-    this.verifiers = verfiers || [];
+    this.verifiers = verifiers || [];
     this.init();
 }
 
@@ -147,7 +145,7 @@ ScrollListener.prototype = {
     onScroll: function (evt) {
         var result = this.checkValidity(evt);
         if (result) {
-            this.$el.trigger('smart-scroll:'+result, evt);
+            this.$el.trigger('smart-scroll:' + result, evt);
             this.$el.trigger('smart-scroll', evt);
         }
     },
@@ -161,21 +159,26 @@ ScrollListener.prototype = {
     }
 };
 
-$.fn.userScroll = function () {
-    var scrollListener = new ScrollListener(this, [
-        new UserScrollVerifier()
-    ]);
-    this.on('scroll', scrollListener.onScroll);
-    return this;
+$.fn.userScroll = function (callback) {
+    var $el = this,
+        scrollListener = new ScrollListener($el, [
+            new UserScrollVerifier()
+        ]);
+    $el.on('scroll', scrollListener.onScroll);
+    if (callback) $el.on('smart-scroll:user', callback);
+    return $el;
 };
 
-$.fn.botScroll = function () {
-    var scrollListener = new ScrollListener(this, [
-        new BotScrollVerifier()
-    ]);
-    this.on('scroll', scrollListener.onScroll);
-    return this;
+$.fn.botScroll = function (callback) {
+    var $el = this,
+        scrollListener = new ScrollListener($el, [
+            new BotScrollVerifier()
+        ]);
+    $el.on('scroll', scrollListener.onScroll);
+    if (callback) $el.on('smart-scroll:bot', callback);
+    return $el;
 };
+
 module.exports = ScrollListener;
 
 module.process();

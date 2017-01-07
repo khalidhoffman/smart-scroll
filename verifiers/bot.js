@@ -3,7 +3,7 @@ var $ = require('jquery');
 function BotScrollVerifier() {
     this.config = {
         verificationTimeLimit: 200,
-        flingScrollDelay: 1000,
+        flingScrollDelay: 3000,
         tag: 'bot'
     };
     this.$dom = $(window);
@@ -20,20 +20,18 @@ function BotScrollVerifier() {
 BotScrollVerifier.prototype = {
     init: function () {
         var self = this,
-            userEvents = [
+            userEventList = [
                 'wheel',
                 'touchmove',
                 'drag'
             ],
-            events = userEvents.join(' ');
+            userEvents = userEventList.join(' ');
 
-        this.$dom.on(events, self.updateTimeStamp);
+        this.$dom.on(userEvents, self.updateTimeStamp);
+
+        // automatically invalidate all input if mouse is down
         this.$dom.on('mousedown touchstart', function () {
-            // automatically ignore all input if mouse is down
             self.state.isOverriding = true;
-            $('body').css({
-                fontSize: '10px'
-            });
         });
         this.$dom.on('mouseup', function () {
             // lift override if mouse is lifted

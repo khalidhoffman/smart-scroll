@@ -13,11 +13,11 @@ or
 
 ## How to use
 ```
-$(window).botScroll().on('smart-scroll:bot', function(){
+$(window).botScroll(function(){
     // bot scroll events only
 });
 
-$(window).userScroll().on('smart-scroll:user', function(){
+$(window).userScroll(function(){
     // user scroll events only
 });
 ```
