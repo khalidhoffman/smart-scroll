@@ -17,6 +17,8 @@ UserScrollVerifier.prototype = {
     init: function(){
         var self = this,
             userEvents = [
+                'keydown',
+                'keyup',
                 'mousedown',
                 'mouseup',
                 'wheel',

@@ -6,7 +6,7 @@ function BotScrollVerifier() {
         flingScrollDelay: 3000,
         tag: 'bot'
     };
-    this.$dom = $(window);
+    this.$window = $(window);
     this.state = {
         lastUserActionTimestamp: 0,
         isOverriding: false,
@@ -23,21 +23,23 @@ BotScrollVerifier.prototype = {
             userEventList = [
                 'wheel',
                 'touchmove',
+                'keydown',
+                'keyup',
                 'drag'
             ],
             userEvents = userEventList.join(' ');
 
-        this.$dom.on(userEvents, self.updateTimeStamp);
+        this.$window.on(userEvents, self.updateTimeStamp);
 
         // automatically invalidate all input if mouse is down
-        this.$dom.on('mousedown touchstart', function () {
+        this.$window.on('mousedown touchstart', function () {
             self.state.isOverriding = true;
         });
-        this.$dom.on('mouseup', function () {
+        this.$window.on('mouseup', function () {
             // lift override if mouse is lifted
             self.state.isOverriding = false;
         });
-        this.$dom.on('touchcancel touchend', function () {
+        this.$window.on('touchcancel touchend', function () {
             // use timeout to allow for slung page to settle
             setTimeout(function () {
                 self.state.isOverriding = false;
