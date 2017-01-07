@@ -7,7 +7,7 @@ Detects user vs programmatic scrolling
 
 or
 
-1. import dist file via html `<script src="${'path to project'}/dist/smart-scroll.js"/>`
+1. import dist file via html `<script src="${'path to project'}/dist/smart-scroll.js"></script>`
     - requires jQuery be loaded prior
 
 

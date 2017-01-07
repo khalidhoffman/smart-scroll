@@ -1,6 +1,6 @@
 {
   "name": "smart-scroll",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "detects bot vs user scroll events",
   "main": "index.js",
   "directories": {
