@@ -1,0 +1,35 @@
+{
+  "name": "smart-scroll",
+  "version": "0.0.1",
+  "description": "detects bot vs user scroll events",
+  "main": "index.js",
+  "bin": {
+    "smart-scroll": "build.js"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node bin/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khalidhoffman/smart-scroll.git"
+  },
+  "keywords": [
+    "scroll",
+    "user",
+    "bot",
+    "detection"
+  ],
+  "author": "Khalid Hoffman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khalidhoffman/smart-scroll/issues"
+  },
+  "homepage": "https://github.com/khalidhoffman/smart-scroll#readme",
+  "devDependencies": {
+    "jquery": "^3.1.1"
+  }
+}
