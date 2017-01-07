@@ -1,44 +1,54 @@
-var define = define || function(deps, init){init()},
-    module = module || {},
-    UserScrollVerifier = require('./verifiers/user');
+var BotScrollVerifier = require('./verifiers/bot'),
+    UserScrollVerifier = require('./verifiers/user'),
+    $ = require('jquery');
 
-function ScrollListener($el){
+function ScrollListener($el, verfiers) {
     this.$el = $el;
     this.onScroll = this.onScroll.bind(this);
-    this.verifiers = [
-        new UserScrollVerifier()
-    ];
+    this.verifiers = verfiers || [];
+    this.init();
 }
 
 ScrollListener.prototype = {
-    init : function(){
+    init: function () {
         var validationIdx = 0;
-        while(this.verifiers[validationIdx]){
-            if(this.verifiers[validationIdx].init){
-                // TODO determine scope for verfier.init
+        while (this.verifiers[validationIdx]) {
+            if (this.verifiers[validationIdx].init) {
                 this.verifiers[validationIdx].init()
             }
             validationIdx++;
         }
     },
-    onScroll: function(evt){
-        if (this.checkValidity(evt)) this.$el.trigger('smart-scroll', evt);
+    onScroll: function (evt) {
+        var result = this.checkValidity(evt);
+        if (result) {
+            this.$el.trigger('smart-scroll:'+result, evt);
+            this.$el.trigger('smart-scroll', evt);
+        }
     },
-    checkValidity: function(evt){
-        var result= false,
+    checkValidity: function (evt) {
+        var result = false,
             validationIdx = 0;
-        while(!result && this.verifiers[validationIdx]){
-            // TODO determine scope for verfier.validate
-            result = this.verifiers[validationIdx++].validate.apply(this, arguments);
+        while (!result && this.verifiers[validationIdx]) {
+            result = this.verifiers[validationIdx++].validate(evt);
         }
         return result;
     }
 };
 
-define(['jquery'],function ($) {
-    return $.fn.smartScroll = function(){
-        var scrollListener = new ScrollListener(this);
-        this.on('scroll', scrollListener.onScroll);
-    };
-});
+$.fn.userScroll = function () {
+    var scrollListener = new ScrollListener(this, [
+        new UserScrollVerifier()
+    ]);
+    this.on('scroll', scrollListener.onScroll);
+    return this;
+};
+
+$.fn.botScroll = function () {
+    var scrollListener = new ScrollListener(this, [
+        new BotScrollVerifier()
+    ]);
+    this.on('scroll', scrollListener.onScroll);
+    return this;
+};
 module.exports = ScrollListener;

@@ -1,11 +1,16 @@
+var $ = require('jquery');
+
 function UserScrollVerifier(){
     this.config = {
-        verificationTimelimit: 200
+        tag: 'user',
+        verificationTimeLimit: 200
     };
-    this.$dom = $(document);
+    this.$dom = $(window);
     this.state = {
         lastActionTimestamp : 0
-    }
+    };
+
+    return this;
 }
 
 UserScrollVerifier.prototype = {
@@ -17,16 +22,15 @@ UserScrollVerifier.prototype = {
                 'wheel',
                 'touchstart',
                 'touchmove',
-                'pointermove',
                 'drag'
             ],
             events = userEvents.join(' ');
         this.$dom.on(events, function(){
-            self.state.lastActionTimestamp = Date.now();
+            self.state.lastUserActionTimestamp = Date.now();
         })
     },
     validate: function(){
-        return (this.state.lastActionTimestamp - Date.now() < this.config.verificationTimelimit)
+        return Date.now() - this.state.lastUserActionTimestamp < this.config.verificationTimeLimit ? this.config.tag : false;
     }
 };
 
