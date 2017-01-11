@@ -76,6 +76,7 @@ BotScrollVerifier.prototype = {
                 return this.state.validationOverrideVal;
             case 'init':
                 this.setValidating();
+                this.state.prev = false;
                 setTimeout(function(){
                     self.setActive();
                 }, this.config.verificationTimeLimit/2);  // just using half as a relatively safe arbitrary delay
