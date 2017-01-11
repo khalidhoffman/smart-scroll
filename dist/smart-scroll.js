@@ -77,7 +77,6 @@ function BotScrollVerifier() {
         status: 'init',
         timeoutId : -1,
         lastUserActionTimestamp: 0,
-        isOverriding: false,
         validationOverrideVal: false
     };
 
@@ -106,12 +105,16 @@ BotScrollVerifier.prototype = {
         this.$window.on('mouseup', function () {
             // continue listening once this mouse is lifted
             // might have issues if user scrolls with 2 buttons pressed and lifts only 1
-            self.setActive();
+            if (self.state.status == 'overriding') {
+                self.setActive();
+            }
         });
         this.$window.on('touchcancel touchend', function () {
             // use timeout to allow for slung page to settle
             setTimeout(function () {
-                self.setActive();
+                if (self.state.status == 'overriding'){
+                    self.setActive();
+                }
             }, self.config.flingScrollDelay)
         })
     },
@@ -137,25 +140,31 @@ BotScrollVerifier.prototype = {
     },
     validate: function () {
         var self = this;
+
+        // debounce calls for reset
+        clearTimeout(this.state.timeoutId);
+        this.state.timeoutId = setTimeout(function(){
+            if (self.state.status != 'overriding'){
+                self.setInit();
+            }
+        }, this.verificationTimeLimit);
+
         switch(this.state.status){
-            case 'override':
+            case 'overriding':
                 return this.state.validationOverrideVal;
             case 'init':
-                this.setValidating();
                 this.state.prev = false;
+                this.setValidating();
                 setTimeout(function(){
                     self.setActive();
-                }, this.config.verificationTimeLimit/2);  // just using half as a relatively safe arbitrary delay
+                }, this.config.verificationTimeLimit/2);
+            case 'validating':
+                return this.state.prev;
             case 'active':
                 this.state.prev = Date.now() - this.state.lastUserActionTimestamp > this.config.verificationTimeLimit ? this.config.tag : false;
-            case 'validating':
-                clearTimeout(this.state.timeoutId);
-                this.state.timeoutId = setTimeout(function(){
-                    self.setInit();
-                }, this.verificationTimeLimit);
                 return this.state.prev;
             default:
-                throw new Error('bot verifier has an invalid state');
+                throw new Error('bot verifier has an invalid state: ' + self.state.status);
         }
     }
 };
