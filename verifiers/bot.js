@@ -8,6 +8,8 @@ function BotScrollVerifier() {
     };
     this.$window = $(window);
     this.state = {
+        status: 'init',
+        timeoutId : -1,
         lastUserActionTimestamp: 0,
         isOverriding: false,
         validationOverrideVal: false
@@ -31,27 +33,63 @@ BotScrollVerifier.prototype = {
 
         this.$window.on(userEvents, self.updateTimeStamp);
 
-        // automatically invalidate all input if mouse is down
         this.$window.on('mousedown touchstart', function () {
-            self.state.isOverriding = true;
+            // automatically invalidate all input if mouse is down
+            self.setOverriding();
         });
         this.$window.on('mouseup', function () {
-            // lift override if mouse is lifted
-            self.state.isOverriding = false;
+            // continue listening once this mouse is lifted
+            // might have issues if user scrolls with 2 buttons pressed and lifts only 1
+            self.setActive();
         });
         this.$window.on('touchcancel touchend', function () {
             // use timeout to allow for slung page to settle
             setTimeout(function () {
-                self.state.isOverriding = false;
+                self.setActive();
             }, self.config.flingScrollDelay)
         })
+    },
+
+    setInit: function(){
+        this.state.status = 'init';
+    },
+
+    setOverriding: function(){
+        this.state.status = 'overriding';
+    },
+
+    setActive: function(){
+        this.state.status = 'active';
+    },
+
+    setValidating: function(){
+        this.state.status = 'validating';
     },
 
     updateTimeStamp: function (val) {
         this.state.lastUserActionTimestamp = Date.now() || val;
     },
     validate: function () {
-        return this.state.isOverriding ? this.state.validationOverrideVal : Date.now() - this.state.lastUserActionTimestamp > this.config.verificationTimeLimit ? this.config.tag : false;
+        var self = this;
+        switch(this.state.status){
+            case 'override':
+                return this.state.validationOverrideVal;
+            case 'init':
+                this.setValidating();
+                setTimeout(function(){
+                    self.setActive();
+                }, this.config.verificationTimeLimit/2);  // just using half as a relatively safe arbitrary delay
+            case 'active':
+                this.state.prev = Date.now() - this.state.lastUserActionTimestamp > this.config.verificationTimeLimit ? this.config.tag : false;
+            case 'validating':
+                clearTimeout(this.state.timeoutId);
+                this.state.timeoutId = setTimeout(function(){
+                    self.setInit();
+                }, this.verificationTimeLimit);
+                return this.state.prev;
+            default:
+                throw new Error('bot verifier has an invalid state');
+        }
     }
 };
 
